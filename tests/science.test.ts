@@ -2,7 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 // Node's native TypeScript runner requires explicit extensions.
 // @ts-expect-error -- executable directly without a transpilation step
-import { STEPS, EPOCH, nextStep, previousStep } from "../lib/trialStates.ts";
+import * as trial from "../lib/trialStates.ts";
+const { STEPS, EPOCH, epochTime, nextStep, previousStep } = trial;
 test("prime precedes the opaque 1000 ms delay and the 2000 ms visual reveal", () => {
   assert.equal(STEPS[0].window, "opaque");
   assert.equal(STEPS[1].duration, 1500);
@@ -24,4 +25,16 @@ test("manual navigation cannot leave the six-step trial", () => {
   assert.equal(previousStep(0), 0);
   assert.equal(nextStep(5), 5);
   for (const i of [0, 1, 2, 3, 4] as const) assert.equal(nextStep(i), i + 1);
+});
+
+test("baseline occupies only the final 200 ms of the opaque delay", () => {
+  for (const elapsed of [0, 100, 500, 799, 800])
+    assert.equal(epochTime(3, elapsed), -200);
+  assert.equal(epochTime(3, 850), -150);
+  assert.equal(epochTime(3, 900), -100);
+  assert.equal(epochTime(3, 1000), 0);
+  assert.equal(epochTime(4, 0), 0);
+  assert.equal(epochTime(4, 206), 206);
+  assert.equal(epochTime(4, 606), 606);
+  assert.equal(epochTime(4, 2000), 1000);
 });

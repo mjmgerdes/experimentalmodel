@@ -1,5 +1,5 @@
 "use client";
-import { EPOCH, type TrialStep } from "@/lib/trialStates";
+import { EPOCH, epochTime, type TrialStep } from "@/lib/trialStates";
 export default function Timeline({
   step,
   elapsed,
@@ -11,14 +11,15 @@ export default function Timeline({
 }) {
   const at = (time: number) =>
     ((time - EPOCH.start) / (EPOCH.end - EPOCH.start)) * 100;
-  const current =
-    step === 3
-      ? Math.max(-200, elapsed - 1000)
-      : step >= 4
-        ? Math.min(1000, step === 5 ? 1000 : elapsed)
-        : -200;
+  const current = epochTime(step, elapsed);
   return (
-    <section className="epoch" aria-label="EEG analysis epoch">
+    <section
+      className="epoch"
+      aria-label="EEG analysis epoch"
+      data-step={step}
+      data-elapsed={elapsed}
+      data-epoch-time={current}
+    >
       <div className="epoch-heading">
         <span className="micro">EEG ANALYSIS EPOCH</span>
         <span className="epoch-status">
@@ -60,9 +61,9 @@ export default function Timeline({
         </div>
       </div>
       <p className="epoch-note">
-        The highlighted interval is a reported result, not a programmed stimulus
-        period. Object visibility lasts 2000 ms; the axis shows the first 1000
-        ms.
+        Baseline: only the final 200 ms before visual onset. The highlighted
+        interval is an observed result, not a programmed stimulus period. The
+        object remains visible for 2000 ms; the axis shows the first 1000 ms.
       </p>
     </section>
   );

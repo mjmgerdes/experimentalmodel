@@ -79,3 +79,11 @@ export const EPOCH = {
   effectStart: 206,
   effectEnd: 606,
 };
+
+// The 1000 ms delay contains only a final 200 ms prestimulus baseline.
+export function epochTime(step: TrialStep, elapsed: number): number {
+  if (step === 3)
+    return Math.min(0, Math.max(EPOCH.start, elapsed - STEPS[3].duration));
+  if (step === 4) return Math.min(EPOCH.end, Math.max(0, elapsed));
+  return step === 5 ? EPOCH.end : EPOCH.start;
+}

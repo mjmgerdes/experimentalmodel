@@ -1909,3 +1909,44 @@ select option {
 
 .model-host { position: relative; width: 100%; height: 100%; }
 .annotation-host { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+
+/* Final scientific-presentation pass: preserve the layout, improve legibility. */
+.relationship.pending strong:last-child { color: var(--muted); }
+@media (min-width: 761px) {
+  .trial-panel { padding-top: 22px; }
+  .trial-panel .condition-switch { margin: 16px 0 18px; }
+  .trial-panel .step-copy h2 { margin-top: 12px; font-size: 25px; }
+  .trial-panel .step-copy > p { margin-top: 10px; }
+  .trial-panel .relationship { margin-top: 18px; padding-top: 14px; }
+  .trial-panel .delay-note, .trial-panel .prime-quote { margin-top: 18px; }
+  .trial-panel .delay-note > p { font-size: 16px; }
+  .presentation .pool-note { display: none; }
+  .presentation .workspace { height: calc(100svh - 326px); }
+  .presentation .condition-switch button, .presentation .play-control { font-size: 14px; }
+  .presentation .step-eyebrow, .presentation .step-eyebrow b,
+  .presentation .relationship > .micro, .presentation .relationship p,
+  .presentation .window-status span, .presentation .window-status strong,
+  .presentation .onset-marker .micro, .presentation .onset-marker small,
+  .presentation .epoch-heading > .micro, .presentation .epoch-status,
+  .presentation .epoch-status b, .presentation .epoch-tick > span,
+  .presentation .epoch-baseline-label, .presentation .epoch-effect-label,
+  .presentation .epoch-effect-label span, .presentation .epoch-note,
+  .presentation .sequence-number, .presentation .scene-annotation i,
+  .presentation .delay-note > .micro, .presentation .delay-note > span:last-child,
+  .presentation .prime-quote > .micro { font-size: 12px; }
+  .presentation .step-copy h2 { font-size: 30px; }
+  .presentation .relationship strong { font-size: 28px; }
+  .presentation .relationship > .micro { letter-spacing: .06em; }
+  .presentation .trial-panel { padding-left: 22px; padding-right: 22px; }
+  .presentation .epoch-plot { margin-top: 20px; }
+  .presentation .epoch-note { line-height: 1.5; }
+  .presentation .onset-marker { max-width: 240px; }
+  .presentation .onset-marker strong { font-size: 36px; }
+  .presentation .onset-marker .micro { letter-spacing: .07em; }
+}
+
+.electrode-label { white-space: nowrap; }
+@media (min-width: 761px) {
+  .trial-panel .prime-quote { margin-top: 12px; padding-top: 12px; }
+  .trial-panel .prime-quote blockquote { margin: 10px 0; font-size: 20px; }
+}

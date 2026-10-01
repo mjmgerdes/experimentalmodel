@@ -41,7 +41,7 @@ export const ELEMENTS: Record<
     name: "Recording expectation",
     tag: "NON-INVASIVE SCALP EEG",
     description:
-      "Fz, FCz, Cz, and Pz record neural activity; they do not stimulate the dog. Electrode positions and cable routing are schematic. The event marker timestamps visual object onset in the EEG recording.",
+      "EEG activity was recorded from Fz, FCz, and Cz, referenced to Pz. F7/F8 near the eyes captured EOG activity; the ground electrode was on the left temporalis. The electrodes recorded electrical activity and did not stimulate the dog. The event marker timestamps visual object onset in the EEG recording.",
   },
   companion: {
     name: "A familiar presence",
@@ -107,9 +107,9 @@ export const ELEMENTS: Record<
 export const COPY = {
   schematic:
     "Schematic reconstruction based on Boros et al. (2024) — not to scale.",
-  why: "The researchers wanted to test whether hearing a familiar object word caused dogs to form a mental representation of the referred object. The same words and physical objects appeared in both match and mismatch trials. What changed was whether the presented object matched the preceding word. A difference in the dog’s ERP response therefore reflects the relationship between the word and object rather than merely differences between the physical stimuli.",
+  why: "The researchers wanted to test whether hearing a familiar object word caused dogs to form a mental representation of the referred object. The same words and physical objects appeared across match and mismatch conditions. Because the physical stimuli themselves were reused across conditions, an ERP difference cannot be explained simply by one word or object being inherently different from another. Instead, the critical manipulation is the relationship between the preceding word and the subsequently presented object.",
   behavioral:
-    "EEG allowed the researchers to measure semantic expectation without requiring the dog to perform an explicit behavioral task.",
+    "EEG allowed the researchers to study semantic expectations without requiring an overt behavioral response.",
   notes:
     "This visualization is a schematic reconstruction of the experimental setup described in Boros et al. (2024) and is not to scale. Relative positions are based on the published Methods and Figure 1 where specified. Exact room dimensions and distances were not reported and are represented approximately.",
   assumptions:

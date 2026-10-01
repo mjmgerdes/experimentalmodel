@@ -23,7 +23,7 @@ npm start
 
 ## Deploy to Vercel
 
-Push this directory to a Git repository, import it in Vercel, choose **Next.js**, and deploy with the defaults (`npm run build`). No additional services or configuration are required. Alternatively, use the Vercel CLI from this directory. This project has not been deployed to a Vercel account by the builder.
+Push this directory to a Git repository, import it in Vercel, choose **Next.js**, and deploy with the defaults (`npm run build`). No additional services or configuration are required. Alternatively, use the Vercel CLI from this directory. The `main` branch of `mjmgerdes/experimentalmodel` is connected to the existing Vercel project; pushing changes to `main` triggers deployment.
 
 ## Using the visualization
 
@@ -64,8 +64,8 @@ The supplied experiment brief is the scientific source of truth. This is **not t
 - Room proportions, precise distances, silhouettes, furniture, colors, webcam mounting, EEG hardware position, cable routing, and electrode spacing are schematic. Elevated model views can see locations that the dog cannot see. No dimensions are asserted.
 - Objects are hidden below the window before presentation. The opaque delay allows the object to be raised before the visual reveal.
 - Preparation is 1500 ms, the opaque delay 1000 ms, and visual presentation 2000 ms. Ready/prime/end automatic pacing (1800/2800/1800 ms) is illustrative, not reported timing. Real intertrial progression depends on E1's attention check; automatic demonstration playback stops at the end.
-- The recording is non-invasive. Event triggers are timestamps, not stimulation. The displayed electrodes are Fz, FCz, Cz, and Pz; EOG is omitted.
-- Visual reveal and the EEG time origin share the same trial-state update. On reveal, the pane and object switch to their visible state immediately for synchronization; other window and object transitions are eased. This browser demonstration is not laboratory stimulus-delivery or acquisition software.
+- The recording is non-invasive. Event triggers are timestamps, not stimulation. Fz, FCz, and Cz are active scalp derivations referenced to Pz (labeled as the reference). F7/F8 near the eyes recorded EOG; the ground was on the left temporalis. EOG and ground positions are described in the EEG panel but omitted from the schematic geometry.
+- Visual reveal and the EEG time origin share the same trial-state update. On reveal, the pane and object switch to their visible state immediately for synchronization; window closing is immediate to preserve the full opaque interval; the word-prime opening and object movement are eased. This browser demonstration is not laboratory stimulus-delivery or acquisition software.
 - The analysis axis spans −200 to 1000 ms relative to object onset; the object remains visible for 2000 ms. The 206–606 ms band is a **reported result**, not a stimulus duration. No measured or fabricated EEG waveform is displayed.
 - The example utterance is displayed in text, with illustrative sound arcs. No original owner audio is included. The five object models are illustrative and do not claim to reproduce the exact objects used in the paper.
 

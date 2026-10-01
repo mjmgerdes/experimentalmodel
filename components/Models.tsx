@@ -236,9 +236,14 @@ export function Dog({ electrodes = false }: { electrodes?: boolean }) {
               position={[i % 2 === 0 ? -0.21 : 0.21, 0.15 + i * 0.1, 0]}
               center
               className="electrode-label"
+              style={
+                label === "Pz"
+                  ? { transform: "translate(-125%, -160%)" }
+                  : undefined
+              }
               zIndexRange={[20, 0]}
             >
-              {label}
+              {label === "Pz" ? "Pz · reference" : label}
             </Html>
           )}
         </group>

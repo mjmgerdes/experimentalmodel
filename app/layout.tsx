@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 export const metadata: Metadata = {
-  title: "Word → Object | Canine semantic understanding",
+  title: "Word → Object | Referential object-word understanding",
   description:
     "An interactive scientific reconstruction of Boros et al. (2024): explore the canine EEG setup and the match–mismatch trial.",
 };

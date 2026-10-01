@@ -196,7 +196,7 @@ export default function Experiment() {
             <h1>
               Word <span>→</span> Object
             </h1>
-            <p>CANINE SEMANTIC UNDERSTANDING</p>
+            <p>REFERENTIAL OBJECT-WORD UNDERSTANDING</p>
           </div>
         </div>
         {!presentation && (
@@ -330,20 +330,46 @@ export default function Experiment() {
               <h2>{current.title}</h2>
               <p>{current.caption}</p>
             </div>
-            <div className={`relationship ${condition}`}>
-              <span className="micro">
-                HEARD WORD <span>REVEALED OBJECT</span>
-              </span>
-              <div>
-                <strong>Ball</strong>
-                <span className="relation-arrow">→</span>
-                <strong>{condition === "match" ? "Ball" : "Frisbee"}</strong>
-              </div>
-              <p>
-                {condition === "match"
-                  ? "The word corresponds to the object."
-                  : "The word does not correspond to the object."}
-              </p>
+            <div
+              className={`relationship ${step >= 4 ? condition : "pending"}`}
+              aria-live="polite"
+              aria-label="Word and object information"
+            >
+              {step < 2 ? (
+                <>
+                  <span className="micro">BEFORE THE WORD PRIME</span>
+                  <p>
+                    {step === 0
+                      ? "Trial not yet begun."
+                      : "Owner preparing the object. The dog has not yet heard the word."}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <span className="micro">
+                    HEARD WORD{" "}
+                    <span>{step >= 4 ? "REVEALED OBJECT" : "OBJECT"}</span>
+                  </span>
+                  <div>
+                    <strong>Ball</strong>
+                    <span className="relation-arrow">→</span>
+                    <strong>
+                      {step < 4
+                        ? "Hidden"
+                        : condition === "match"
+                          ? "Ball"
+                          : "Frisbee"}
+                    </strong>
+                  </div>
+                  <p>
+                    {step < 4
+                      ? "The object has not yet been revealed."
+                      : condition === "match"
+                        ? "The word corresponds to the object."
+                        : "The word does not correspond to the object."}
+                  </p>
+                </>
+              )}
             </div>
             {step === 2 ? (
               <div className="prime-quote">

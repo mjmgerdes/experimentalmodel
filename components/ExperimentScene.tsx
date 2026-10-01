@@ -31,10 +31,12 @@ interface SceneProps {
   timeRef: RefObject<number>;
 }
 function Annotation({
+  visible = true,
   portal,
   position,
   children,
 }: {
+  visible?: boolean;
   portal: RefObject<HTMLDivElement | null>;
   position: Vec;
   children: ReactNode;
@@ -46,6 +48,7 @@ function Annotation({
       center
       zIndexRange={[10, 0]}
       className="scene-annotation"
+      style={{ display: visible ? undefined : "none" }}
     >
       <span>{children}</span>
     </Html>
@@ -63,14 +66,16 @@ function ElectricGlass({
   const material = useRef<MeshStandardMaterial>(null);
   useFrame((_, dt) => {
     if (material.current)
-      material.current.opacity = reveal
-        ? 0.09
-        : MathUtils.damp(
-            material.current.opacity,
-            clear ? 0.09 : 1,
-            reducedMotion ? 1000 : 10,
-            dt,
-          );
+      material.current.opacity = !clear
+        ? 1
+        : reveal
+          ? 0.09
+          : MathUtils.damp(
+              material.current.opacity,
+              clear ? 0.09 : 1,
+              reducedMotion ? 1000 : 10,
+              dt,
+            );
   });
   return (
     <mesh position={[0, 1.99, 0]} castShadow={!clear}>
@@ -235,7 +240,9 @@ function MonitorReadout({
   }, [step, condition, timeRef]);
   return <span ref={text} />;
 }
-function SceneContent(props: SceneProps & {portal: RefObject<HTMLDivElement | null>}) {
+function SceneContent(
+  props: SceneProps & { portal: RefObject<HTMLDivElement | null> },
+) {
   const {
     step,
     trial,
@@ -505,21 +512,53 @@ function SceneContent(props: SceneProps & {portal: RefObject<HTMLDivElement | nu
       </Pick>
       {labels && (
         <>
-          <Annotation portal={props.portal} position={[-2.75, 0.08, 1.45]}>
+          <Annotation
+            portal={props.portal}
+            visible={preset !== "Owner / Outer zone" && preset !== "EEG focus"}
+            position={[-2.75, 0.08, 1.45]}
+          >
             01 / INNER ZONE
           </Annotation>
-          <Annotation portal={props.portal} position={[2.95, 0.05, -3.12]}>
+          <Annotation
+            portal={props.portal}
+            visible={preset !== "Dog / Inner zone" && preset !== "EEG focus"}
+            position={[2.95, 0.05, -3.12]}
+          >
             02 / OUTER ZONE
           </Annotation>
-          <Annotation portal={props.portal} position={[0.02, 1.65, 2.39]}>
+          <Annotation
+            portal={props.portal}
+            visible={preset !== "Owner / Outer zone" && preset !== "EEG focus"}
+            position={[0.02, 1.65, 2.39]}
+          >
             Dog <i>+ scalp EEG</i>
           </Annotation>
-          <Annotation portal={props.portal} position={[-1.69, 2.72, 2.37]}>O2 / E2</Annotation>
-          <Annotation portal={props.portal} position={[0, 2.89, -1.85]}>Owner O1</Annotation>
-          <Annotation portal={props.portal} position={[3.15, 2.75, -1.76]}>
+          <Annotation
+            portal={props.portal}
+            visible={preset !== "Owner / Outer zone" && preset !== "EEG focus"}
+            position={[-1.69, 2.72, 2.37]}
+          >
+            O2 / E2
+          </Annotation>
+          <Annotation
+            portal={props.portal}
+            visible={preset !== "Dog / Inner zone" && preset !== "EEG focus"}
+            position={[0, 2.89, -1.85]}
+          >
+            Owner O1
+          </Annotation>
+          <Annotation
+            portal={props.portal}
+            visible={preset !== "Dog / Inner zone" && preset !== "EEG focus"}
+            position={[3.15, 2.75, -1.76]}
+          >
             E1 <i>experimenter</i>
           </Annotation>
-          <Annotation portal={props.portal} position={[-0.05, 3.44, 0.02]}>
+          <Annotation
+            portal={props.portal}
+            visible={preset !== "EEG focus"}
+            position={[-0.05, 3.44, 0.02]}
+          >
             Electric window <i>{clear ? "transparent" : "opaque"}</i>
           </Annotation>
         </>
@@ -536,18 +575,18 @@ function ExperimentScene(props: SceneProps) {
   const portal = useRef<HTMLDivElement>(null);
   return (
     <div className="model-host">
-    <Canvas
-      orthographic
-      camera={{ position: [9, 24, -12], zoom: 60, near: 0.1, far: 80 }}
-      dpr={[1, 1.7]}
-      shadows="percentage"
-      gl={{ antialias: true, alpha: false }}
-      onPointerMissed={() => props.onSelect(null)}
-      aria-label="Interactive schematic of the dog EEG experiment. Use the labeled setup list to inspect every element without interacting with the canvas."
-    >
-      <SceneContent {...props} portal={portal} />
-    </Canvas>
-    <div ref={portal} className="annotation-host"/>
+      <Canvas
+        orthographic
+        camera={{ position: [9, 24, -12], zoom: 60, near: 0.1, far: 80 }}
+        dpr={[1, 1.7]}
+        shadows="percentage"
+        gl={{ antialias: true, alpha: false }}
+        onPointerMissed={() => props.onSelect(null)}
+        aria-label="Interactive schematic of the dog EEG experiment. Use the labeled setup list to inspect every element without interacting with the canvas."
+      >
+        <SceneContent {...props} portal={portal} />
+      </Canvas>
+      <div ref={portal} className="annotation-host" />
     </div>
   );
 }
