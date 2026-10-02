@@ -15,7 +15,10 @@ page.on("console", (message) => {
 });
 const metrics = [];
 async function capture(name) {
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(1800);
+  // A pointer click clears the previous control's keyboard focus for screenshots.
+  // Keep the application's focus-visible styling intact for keyboard users.
+  await page.locator(".identity h1").click();
   assert.equal(
     await page.evaluate(
       () => document.documentElement.scrollWidth > innerWidth,
@@ -51,6 +54,18 @@ try {
   });
   await page.locator("canvas").waitFor();
   await capture("01-overview");
+  for (const [preset, name] of [
+    ["Dog / Inner zone", "07-dog"],
+    ["Owner / Outer zone", "08-owner"],
+    ["Side view", "09-side"],
+    ["EEG focus", "10-eeg-focus"],
+  ]) {
+    await page.locator("#camera").selectOption(preset);
+    await capture(name);
+  }
+  await page
+    .getByRole("button", { name: "Reset camera ↗", exact: true })
+    .click();
   await page.getByRole("button", { name: "Run trial", exact: true }).click();
   await page.getByRole("button", { name: "Mismatch", exact: true }).click();
   for (const [step, name] of [
@@ -63,6 +78,8 @@ try {
   }
   await page.keyboard.press("p");
   await capture("05-presentation-onset");
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await capture("11-presentation-onset-1920");
   await page.keyboard.press("Escape");
   await page.setViewportSize({ width: 390, height: 844 });
   await capture("06-mobile");

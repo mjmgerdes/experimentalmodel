@@ -1,7 +1,7 @@
 import { chromium } from "@playwright/test";
 import { mkdir, writeFile } from "node:fs/promises";
 import assert from "node:assert/strict";
-const output = "qa-artifacts/final-pass";
+const output = process.env.QA_DIR || "qa-artifacts/final-pass";
 await mkdir(output, { recursive: true });
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 const page = await browser.newPage({
@@ -26,6 +26,30 @@ async function overflow() {
     false,
   );
 }
+async function presentationFits(label) {
+  await overflow();
+  const layout = await page.evaluate(() => {
+    const panel = document.querySelector(".trial-panel");
+    return {
+      viewport: { width: innerWidth, height: innerHeight },
+      documentHeight: Math.max(
+        document.documentElement.scrollHeight,
+        document.body.scrollHeight,
+      ),
+      panelHeight: panel.clientHeight,
+      panelScrollHeight: panel.scrollHeight,
+    };
+  });
+  assert.ok(
+    layout.documentHeight <= layout.viewport.height + 1,
+    `${label}: presentation fits the viewport without vertical scrolling (${layout.documentHeight}px / ${layout.viewport.height}px)`,
+  );
+  assert.ok(
+    layout.panelScrollHeight <= layout.panelHeight + 1,
+    `${label}: presentation critical text is not clipped`,
+  );
+  return { label, ...layout };
+}
 try {
   await page.goto(process.env.PREVIEW_URL || "http://localhost:3004", {
     waitUntil: "networkidle",
@@ -46,6 +70,7 @@ try {
   ].entries()) {
     await page.locator("#camera").selectOption(name);
     await page.waitForTimeout(1000);
+    await page.locator(".identity h1").click();
     await page.screenshot({
       path: `${output}/camera-${i}-${name.split(" / ")[0].toLowerCase().replaceAll(" ", "-")}.png`,
       fullPage: true,
@@ -61,11 +86,20 @@ try {
       .then((x) => x.join(" ")),
     /Pz · reference/,
   );
-  const electrodeRects = await page.locator(".electrode-label:visible").evaluateAll(els => els.map(el => el.getBoundingClientRect().toJSON()));
+  const electrodeRects = await page
+    .locator(".electrode-label:visible")
+    .evaluateAll((els) => els.map((el) => el.getBoundingClientRect().toJSON()));
   for (let i = 0; i < electrodeRects.length; i++) {
     for (let j = i + 1; j < electrodeRects.length; j++) {
-      const a = electrodeRects[i], b = electrodeRects[j];
-      assert.ok(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top, "Electrode labels do not overlap");
+      const a = electrodeRects[i],
+        b = electrodeRects[j];
+      assert.ok(
+        a.right <= b.left ||
+          b.right <= a.left ||
+          a.bottom <= b.top ||
+          b.bottom <= a.top,
+        "Electrode labels do not overlap",
+      );
     }
   }
   await button("Reset camera ↗").click();
@@ -186,25 +220,45 @@ try {
   await page.keyboard.press("p");
   assert.equal(await page.locator(".presentation").count(), 1);
   await page.waitForTimeout(900);
-  await overflow();
-  const panel = await page
-    .locator(".trial-panel")
-    .evaluate((e) => ({ height: e.clientHeight, scroll: e.scrollHeight }));
-  assert.ok(
-    panel.scroll <= panel.height + 1,
-    "Presentation critical text is not clipped",
-  );
-  const sizes = await page
-    .locator(
-      ".presentation .step-eyebrow,.presentation .relationship .micro,.presentation .epoch-tick span,.presentation .window-status strong,.presentation .onset-marker .micro",
-    )
-    .evaluateAll((els) =>
-      els.map((e) => parseFloat(getComputedStyle(e).fontSize)),
+  const presentationLayouts = [];
+  const sizes = [];
+  for (const viewport of [
+    { width: 1440, height: 900 },
+    { width: 1920, height: 1080 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.waitForTimeout(900);
+    for (const n of [0, 1, 2, 3, 4, 5]) {
+      await step(n);
+      presentationLayouts.push(
+        await presentationFits(
+          `${viewport.width}×${viewport.height}, step ${n}`,
+        ),
+      );
+    }
+    await step(4);
+    const viewportSizes = await page
+      .locator(
+        ".presentation .step-eyebrow,.presentation .relationship .micro,.presentation .epoch-tick span,.presentation .window-status strong,.presentation .onset-marker .micro",
+      )
+      .evaluateAll((els) =>
+        els.map((e) => parseFloat(getComputedStyle(e).fontSize)),
+      );
+    assert.ok(
+      viewportSizes.length > 0,
+      "Presentation critical text is present",
     );
-  assert.ok(
-    sizes.every((size) => size >= 11),
-    "Presentation critical text is at least 11px",
-  );
+    assert.ok(
+      viewportSizes.every((size) => size >= 11),
+      `${viewport.width}×${viewport.height}: presentation critical text is at least 11px`,
+    );
+    sizes.push(...viewportSizes);
+    await page.locator(".identity h1").click();
+    await page.screenshot({
+      path: `${output}/presentation-onset-${viewport.width}.png`,
+      fullPage: true,
+    });
+  }
   await page.keyboard.press("p");
   assert.equal(await page.locator(".presentation").count(), 0);
   await page.setViewportSize({ width: 390, height: 844 });
@@ -224,6 +278,7 @@ try {
         errors,
         timings: transitions.map((r, i) => ({ step: i, wall: r.wall })),
         presentationTextSizes: sizes,
+        presentationLayouts,
       },
       null,
       2,

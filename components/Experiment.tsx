@@ -305,7 +305,7 @@ export default function Experiment() {
         ) : (
           <aside className="trial-panel" id="main-controls">
             <div className="panel-heading">
-              <span className="micro">THE TRIAL PROCEDURE</span>
+              <span className="micro">The trial procedure</span>
               <span className="panel-index">02 / 02</span>
             </div>
             <div className="condition-switch" aria-label="Trial condition">
@@ -414,7 +414,7 @@ export default function Experiment() {
             {!presentation && (
               <div className="trial-camera">
                 <label htmlFor="trial-camera" className="field-label">
-                  CAMERA VIEW
+                  Camera view
                 </label>
                 <div className="select-wrap">
                   <select

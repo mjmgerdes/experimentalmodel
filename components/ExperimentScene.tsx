@@ -34,24 +34,39 @@ function Annotation({
   visible = true,
   portal,
   position,
+  anchor,
+  zone = false,
   children,
 }: {
   visible?: boolean;
   portal: RefObject<HTMLDivElement | null>;
   position: Vec;
+  anchor?: Vec;
+  zone?: boolean;
   children: ReactNode;
 }) {
   return (
-    <Html
-      portal={portal as RefObject<HTMLElement>}
-      position={position}
-      center
-      zIndexRange={[10, 0]}
-      className="scene-annotation"
-      style={{ display: visible ? undefined : "none" }}
-    >
-      <span>{children}</span>
-    </Html>
+    <>
+      {visible && anchor && (
+        <Line
+          points={[anchor, position]}
+          color="#bbc8b9"
+          transparent
+          opacity={0.55}
+          lineWidth={0.8}
+        />
+      )}
+      <Html
+        portal={portal as RefObject<HTMLElement>}
+        position={position}
+        center
+        zIndexRange={[10, 0]}
+        className={`scene-annotation${zone ? " zone" : ""}`}
+        style={{ display: visible ? undefined : "none" }}
+      >
+        <span>{children}</span>
+      </Html>
+    </>
   );
 }
 function ElectricGlass({
@@ -259,11 +274,11 @@ function SceneContent(
   return (
     <SelectionContext.Provider value={{ selected, onSelect }}>
       <color attach="background" args={["#202724"]} />
-      <ambientLight intensity={0.7} />
-      <hemisphereLight args={["#e3e6da", "#3f5047", 1.65]} />
+      <ambientLight intensity={0.75} />
+      <hemisphereLight args={["#e3e6da", "#65756a", 1.9]} />
       <directionalLight
-        position={[-5, 11, 6]}
-        intensity={3.2}
+        position={[-3, 14, 5]}
+        intensity={2.65}
         color="#fff3da"
         castShadow
         shadow-mapSize={[2048, 2048]}
@@ -272,9 +287,14 @@ function SceneContent(
         shadow-camera-top={8}
         shadow-camera-bottom={-8}
         shadow-normalBias={0.035}
-        shadow-radius={4}
+        shadow-radius={8}
+        shadow-intensity={0.68}
       />
-      <directionalLight position={[5, 6, -6]} intensity={1.4} color="#b8d7d2" />
+      <directionalLight
+        position={[5, 6, -6]}
+        intensity={0.95}
+        color="#d5e0d7"
+      />
       <Block
         position={[0.45, -0.17, 0]}
         size={[8.2, 0.3, 8.1]}
@@ -286,6 +306,7 @@ function SceneContent(
           position={[0.45, 0.001, 1.99]}
           size={[8.12, 0.055, 4.04]}
           color="#59625a"
+          roughness={0.98}
           radius={0.035}
         />
       </Pick>
@@ -294,6 +315,7 @@ function SceneContent(
           position={[0.45, 0.002, -2.02]}
           size={[8.12, 0.055, 3.97]}
           color="#47534d"
+          roughness={0.98}
           radius={0.035}
         />
       </Pick>
@@ -379,11 +401,17 @@ function SceneContent(
         />
       </Pick>
       <Pick id="eeg" position={[1.68, 0.15, 2.67]} ring={[0.3, 0.32]}>
-        <Block size={[0.43, 0.23, 0.54]} color="#384c47" />
+        <Block
+          size={[0.43, 0.23, 0.54]}
+          color="#384c47"
+          roughness={0.52}
+          metalness={0.12}
+        />
         <Block
           position={[0, 0.12, 0]}
           size={[0.29, 0.025, 0.24]}
           color="#88b2a7"
+          roughness={0.4}
         />
       </Pick>
       <Pick id="companion" position={[-1.47, 0, 2.39]} ring={[0.6, 0.615]}>
@@ -406,6 +434,8 @@ function SceneContent(
           position={[0, 0.81, -0.23]}
           size={[0.91, 0.54, 0.08]}
           color="#293934"
+          roughness={0.45}
+          metalness={0.12}
           rotation={[-0.14, 0, 0]}
         />
         <Block
@@ -435,7 +465,7 @@ function SceneContent(
       <Pick id="speakers">
         {[-1.15, 1.15].map((x) => (
           <group key={x} position={[x, 0.26, -0.83]}>
-            <Block size={[0.31, 0.46, 0.29]} color="#35413a" />
+            <Block size={[0.31, 0.46, 0.29]} color="#35413a" roughness={0.68} />
             {[0.12, -0.1].map((y, i) => (
               <mesh
                 key={y}
@@ -514,29 +544,39 @@ function SceneContent(
         <>
           <Annotation
             portal={props.portal}
-            visible={preset !== "Owner / Outer zone" && preset !== "EEG focus"}
-            position={[-2.75, 0.08, 1.45]}
+            zone
+            visible={preset === "Overview" || preset === "Side view"}
+            position={
+              preset === "Overview" ? [2.4, 0.08, 2.7] : [-2.75, 0.08, 1.45]
+            }
           >
-            01 / INNER ZONE
+            01 / Inner zone
           </Annotation>
           <Annotation
             portal={props.portal}
+            zone
             visible={preset !== "Dog / Inner zone" && preset !== "EEG focus"}
             position={[2.95, 0.05, -3.12]}
           >
-            02 / OUTER ZONE
+            02 / Outer zone
           </Annotation>
           <Annotation
             portal={props.portal}
             visible={preset !== "Owner / Outer zone" && preset !== "EEG focus"}
-            position={[0.02, 1.65, 2.39]}
+            position={[0.55, 1.75, 2.6]}
+            anchor={[0, 1.0, 2.1]}
           >
             Dog <i>+ scalp EEG</i>
           </Annotation>
           <Annotation
             portal={props.portal}
-            visible={preset !== "Owner / Outer zone" && preset !== "EEG focus"}
+            visible={
+              preset === "Dog / Inner zone" ||
+              preset === "Side view" ||
+              selected === "companion"
+            }
             position={[-1.69, 2.72, 2.37]}
+            anchor={[-1.47, 2.44, 2.39]}
           >
             O2 / E2
           </Annotation>
@@ -544,20 +584,27 @@ function SceneContent(
             portal={props.portal}
             visible={preset !== "Dog / Inner zone" && preset !== "EEG focus"}
             position={[0, 2.89, -1.85]}
+            anchor={[0, 2.44, -1.75]}
           >
             Owner O1
           </Annotation>
           <Annotation
             portal={props.portal}
-            visible={preset !== "Dog / Inner zone" && preset !== "EEG focus"}
+            visible={
+              preset === "Owner / Outer zone" ||
+              preset === "Side view" ||
+              selected === "experimenter"
+            }
             position={[3.15, 2.75, -1.76]}
+            anchor={[3.04, 2.44, -1.76]}
           >
             E1 <i>experimenter</i>
           </Annotation>
           <Annotation
             portal={props.portal}
             visible={preset !== "EEG focus"}
-            position={[-0.05, 3.44, 0.02]}
+            position={[-0.05, 3.62, 0.02]}
+            anchor={[-0.05, 3.12, 0.02]}
           >
             Electric window <i>{clear ? "transparent" : "opaque"}</i>
           </Annotation>

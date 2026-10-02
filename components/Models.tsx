@@ -1,6 +1,7 @@
 "use client";
 import { RoundedBox, Line, Html } from "@react-three/drei";
-import { Vector3, Quaternion } from "three";
+import { useMemo } from "react";
+import { Vector3, Quaternion, CatmullRomCurve3, TubeGeometry } from "three";
 import type { ObjectKind } from "@/lib/experimentData";
 type Vec = [number, number, number];
 export function Block({
@@ -9,12 +10,16 @@ export function Block({
   color = "#777d79",
   radius = 0.05,
   rotation = [0, 0, 0],
+  roughness = 0.84,
+  metalness = 0,
 }: {
   position?: Vec;
   size: Vec;
   color?: string;
   radius?: number;
   rotation?: Vec;
+  roughness?: number;
+  metalness?: number;
 }) {
   return (
     <RoundedBox
@@ -26,7 +31,11 @@ export function Block({
       castShadow
       receiveShadow
     >
-      <meshStandardMaterial color={color} roughness={0.84} />
+      <meshStandardMaterial
+        color={color}
+        roughness={roughness}
+        metalness={metalness}
+      />
     </RoundedBox>
   );
 }
@@ -34,7 +43,7 @@ function Form({
   position,
   scale,
   color = "#b2ab9e",
-  detail = 2,
+  detail = 3,
 }: {
   position: Vec;
   scale: Vec;
@@ -44,7 +53,7 @@ function Form({
   return (
     <mesh position={position} scale={scale} castShadow receiveShadow>
       <icosahedronGeometry args={[1, detail]} />
-      <meshStandardMaterial color={color} roughness={0.92} flatShading />
+      <meshStandardMaterial color={color} roughness={0.92} />
     </mesh>
   );
 }
@@ -96,10 +105,20 @@ export function Human({
         color="#454d4b"
       />
       <Block
-        position={[0, 1.18, -0.39]}
-        size={[0.73, 0.95, 0.12]}
-        color="#454d4b"
+        position={[0, 1.25, -0.39]}
+        size={[0.68, 0.78, 0.095]}
+        color="#505954"
+        radius={0.045}
       />
+      {[-0.25, 0.25].map((x) => (
+        <Rod
+          key={`back-${x}`}
+          from={[x, 0.69, -0.44]}
+          to={[x, 1.49, -0.44]}
+          radius={0.022}
+          color="#69736b"
+        />
+      ))}
       {[-0.27, 0.27].flatMap((x) =>
         [-0.34, 0.15].map((z) => (
           <Rod
@@ -163,6 +182,49 @@ export function Human({
     </group>
   );
 }
+function Tail() {
+  const geometry = useMemo(() => {
+    const curve = new CatmullRomCurve3([
+      new Vector3(0.12, 0.29, 0.69),
+      new Vector3(0.37, 0.2, 1.02),
+      new Vector3(0.57, 0.16, 1.03),
+      new Vector3(0.71, 0.17, 0.81),
+    ]);
+    const tube = new TubeGeometry(curve, 24, 0.064, 8, false);
+    const positions = tube.getAttribute("position");
+    for (let segment = 0; segment <= 24; segment++) {
+      const t = segment / 24;
+      const center = curve.getPointAt(t);
+      const taper = 1 - t * 0.84;
+      for (let side = 0; side <= 8; side++) {
+        const index = segment * 9 + side;
+        positions.setXYZ(
+          index,
+          center.x + (positions.getX(index) - center.x) * taper,
+          center.y + (positions.getY(index) - center.y) * taper,
+          center.z + (positions.getZ(index) - center.z) * taper,
+        );
+      }
+    }
+    tube.computeVertexNormals();
+    return tube;
+  }, []);
+  return (
+    <mesh geometry={geometry} castShadow receiveShadow>
+      <meshStandardMaterial color="#9d9482" roughness={0.92} />
+    </mesh>
+  );
+}
+
+const ELECTRODE_LABEL_OFFSETS: Vec[] = [
+  [-0.36, 0.45, -0.16],
+  [0.55, 0.7, -0.03],
+  [-0.55, 0.65, 0.09],
+  [-0.6, 0.45, 0.45],
+];
+// Seat the schematic discs on the curved scalp rather than inside the head.
+const ELECTRODE_HEIGHTS = [1.044, 1.1, 1.085, 0.993];
+
 export function Dog({ electrodes = false }: { electrodes?: boolean }) {
   return (
     <group position={[0, 0.2, 2.05]}>
@@ -206,16 +268,7 @@ export function Dog({ electrodes = false }: { electrodes?: boolean }) {
           </mesh>
         </group>
       ))}
-      <Line
-        points={[
-          [0.12, 0.29, 0.69],
-          [0.37, 0.2, 1.02],
-          [0.57, 0.16, 1.03],
-          [0.71, 0.17, 0.81],
-        ]}
-        color="#9d9482"
-        lineWidth={13}
-      />
+      <Tail />
       <Line
         points={[
           [-0.28, 0.69, -0.46],
@@ -226,25 +279,29 @@ export function Dog({ electrodes = false }: { electrodes?: boolean }) {
         lineWidth={3}
       />
       {["Fz", "FCz", "Cz", "Pz"].map((label, i) => (
-        <group key={label} position={[0, 1.044 - i * 0.017, -0.87 + i * 0.145]}>
+        <group key={label} position={[0, ELECTRODE_HEIGHTS[i], -0.87 + i * 0.145]}>
           <mesh>
             <cylinderGeometry args={[0.034, 0.038, 0.018, 16]} />
             <meshStandardMaterial color="#afd5ce" roughness={0.55} />
           </mesh>
           {electrodes && (
-            <Html
-              position={[i % 2 === 0 ? -0.21 : 0.21, 0.15 + i * 0.1, 0]}
-              center
-              className="electrode-label"
-              style={
-                label === "Pz"
-                  ? { transform: "translate(-125%, -160%)" }
-                  : undefined
-              }
-              zIndexRange={[20, 0]}
-            >
-              {label === "Pz" ? "Pz · reference" : label}
-            </Html>
+            <>
+              <Line
+                points={[[0, 0.018, 0], ELECTRODE_LABEL_OFFSETS[i]]}
+                color="#9dc2b7"
+                transparent
+                opacity={0.78}
+                lineWidth={1}
+              />
+              <Html
+                position={ELECTRODE_LABEL_OFFSETS[i]}
+                center
+                className="electrode-label"
+                zIndexRange={[20, 0]}
+              >
+                {label === "Pz" ? "Pz · reference" : label}
+              </Html>
+            </>
           )}
         </group>
       ))}

@@ -40,6 +40,14 @@ export default function Timeline({
           style={{ left: `${at(206)}%`, width: `${at(606) - at(206)}%` }}
         />
         <div className="epoch-rule" />
+        {[-100, 100, 300, 500, 700, 900].map((t) => (
+          <div
+            key={t}
+            aria-hidden="true"
+            className="epoch-tick minor"
+            style={{ left: `${at(t)}%` }}
+          />
+        ))}
         {[-200, 0, 200, 400, 600, 800, 1000].map((t) => (
           <div
             key={t}

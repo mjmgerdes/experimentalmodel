@@ -13,19 +13,19 @@ const VIEWS: Record<
     zoom: number;
   }
 > = {
-  Overview: { position: [9, 24, -12], target: [0.4, 0.5, 0], zoom: 58 },
+  Overview: { position: [9, 24, -12], target: [0.4, 0.35, 0], zoom: 61 },
   "Dog / Inner zone": {
-    position: [5, 5, 8],
-    target: [-0.2, 0.6, 1.8],
-    zoom: 115,
+    position: [5, 6.8, 8],
+    target: [-0.25, 1.6, 1.3],
+    zoom: 84,
   },
   "Owner / Outer zone": {
-    position: [7, 7, -10],
-    target: [0.7, 1, -1.4],
-    zoom: 100,
+    position: [3.2, 12, -13],
+    target: [0.25, 1.4, -1.2],
+    zoom: 88,
   },
-  "Side view": { position: [10, 5, 4], target: [0, 1, 0], zoom: 85 },
-  "EEG focus": { position: [2.2, 3.5, 3.5], target: [0, 1, 1.3], zoom: 235 },
+  "Side view": { position: [11, 7.8, 5.5], target: [0, 1, 0], zoom: 79 },
+  "EEG focus": { position: [3, 8, 5.5], target: [0.4, 0.65, 1.9], zoom: 166 },
 };
 export default function CameraController({
   preset,

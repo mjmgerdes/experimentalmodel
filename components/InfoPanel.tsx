@@ -34,7 +34,7 @@ export default function InfoPanel({
   return (
     <aside className="info-panel" aria-label="Explore setup">
       <div className="panel-heading">
-        <span className="micro">THE EXPERIMENTAL SETUP</span>
+        <span className="micro">The experimental setup</span>
         <span className="panel-index">01 / 02</span>
       </div>
       <div className="intro">
@@ -48,7 +48,7 @@ export default function InfoPanel({
         </p>
       </div>
       <label className="field-label" htmlFor="camera">
-        CAMERA VIEW
+        Camera view
       </label>
       <div className="select-wrap">
         <select
