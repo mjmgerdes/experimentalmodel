@@ -996,7 +996,7 @@ select option {
   line-height: 1.6;
   margin-top: -5px;
 }
-.onset-marker {
+.scene-event-marker {
   position: absolute;
   left: 34px;
   bottom: 118px;
@@ -1007,11 +1007,11 @@ select option {
   background: #202724c9;
   padding: 10px 15px;
 }
-.onset-marker .micro {
+.scene-event-marker .micro {
   font-size: 8px;
   color: var(--cool);
 }
-.onset-marker strong {
+.scene-event-marker strong {
   display: block;
   font-family: var(--mono);
   font-size: 30px;
@@ -1019,12 +1019,12 @@ select option {
   letter-spacing: -0.06em;
   margin-top: 6px;
 }
-.onset-marker strong span {
+.scene-event-marker strong span {
   font-size: 14px;
   letter-spacing: 0;
   color: var(--muted);
 }
-.onset-marker small {
+.scene-event-marker small {
   font-size: 8px;
   color: var(--muted);
   display: block;
@@ -1082,7 +1082,7 @@ select option {
 .presentation .window-status {
   bottom: 26px;
 }
-.presentation .onset-marker {
+.presentation .scene-event-marker {
   bottom: 80px;
 }
 .presentation-footnote {
@@ -1452,7 +1452,7 @@ select option {
   .presentation-footnote {
     font-size: 8px;
   }
-  .onset-marker {
+  .scene-event-marker {
     left: 24px;
   }
   .scene-annotation > span {
@@ -1897,10 +1897,10 @@ select option {
 @media (max-width: 760px) {
   .scene-stage, .presentation .scene-stage { height: 450px; }
   .canvas-wrap { top: 35px; bottom: 90px; }
-  .onset-marker, .presentation .onset-marker { left: auto; right: 18px; bottom: 49px; width: 185px; border-left: 0; border-right: 2px solid var(--cool); text-align: right; padding: 4px 10px; background: transparent; }
-  .onset-marker .micro { font-size: 7px; }
-  .onset-marker strong { font-size: 20px; margin-top: 3px; }
-  .onset-marker small { display: none; }
+  .scene-event-marker, .presentation .scene-event-marker { left: auto; right: 18px; bottom: 49px; width: 185px; border-left: 0; border-right: 2px solid var(--cool); text-align: right; padding: 4px 10px; background: transparent; }
+  .scene-event-marker .micro { font-size: 7px; }
+  .scene-event-marker strong { font-size: 20px; margin-top: 3px; }
+  .scene-event-marker small { display: none; }
   .window-status, .presentation .window-status { bottom: 56px; }
   .scene-bottomline { bottom: 8px; }
   .scene-annotation > span { font-size: 9px; padding-left: 5px; }
@@ -1926,7 +1926,7 @@ select option {
   .presentation .step-eyebrow, .presentation .step-eyebrow b,
   .presentation .relationship > .micro, .presentation .relationship p,
   .presentation .window-status span, .presentation .window-status strong,
-  .presentation .onset-marker .micro, .presentation .onset-marker small,
+  .presentation .scene-event-marker .micro, .presentation .scene-event-marker small,
   .presentation .epoch-heading > .micro, .presentation .epoch-status,
   .presentation .epoch-status b, .presentation .epoch-tick > span,
   .presentation .epoch-baseline-label, .presentation .epoch-effect-label,
@@ -1940,9 +1940,9 @@ select option {
   .presentation .trial-panel { padding-left: 22px; padding-right: 22px; }
   .presentation .epoch-plot { margin-top: 20px; }
   .presentation .epoch-note { line-height: 1.5; }
-  .presentation .onset-marker { max-width: 240px; }
-  .presentation .onset-marker strong { font-size: 36px; }
-  .presentation .onset-marker .micro { letter-spacing: .07em; }
+  .presentation .scene-event-marker { max-width: 240px; }
+  .presentation .scene-event-marker strong { font-size: 36px; }
+  .presentation .scene-event-marker .micro { letter-spacing: .07em; }
 }
 
 .electrode-label { white-space: nowrap; }
@@ -2023,8 +2023,8 @@ select option {
   left: -2px;
   top: -3px;
 }
-.onset-marker { background: transparent; }
-.onset-marker .micro { letter-spacing: .08em; }
+.scene-event-marker { background: transparent; }
+.scene-event-marker .micro { letter-spacing: .08em; }
 @media (min-width: 761px) {
   .trial-panel .condition-switch { margin-top: 14px; margin-bottom: 20px; }
   .trial-panel .step-copy h2 { font-size: 27px; }
@@ -2064,10 +2064,10 @@ select option {
   .presentation .epoch-plot { margin-top: 17px; height: 61px; }
   .presentation .epoch-note { font-size: 12px; line-height: 1.5; margin-top: 0; }
   .presentation .epoch-heading > .micro { letter-spacing: .08em; }
-  .presentation .onset-marker { max-width: 252px; bottom: 86px; padding: 0 14px; }
-  .presentation .onset-marker .micro { font-size: 12px; }
-  .presentation .onset-marker strong { font-size: 40px; margin-top: 8px; }
-  .presentation .onset-marker small { max-width: 210px; line-height: 1.5; }
+  .presentation .scene-event-marker { max-width: 252px; bottom: 86px; padding: 0 14px; }
+  .presentation .scene-event-marker .micro { font-size: 12px; }
+  .presentation .scene-event-marker strong { font-size: 40px; margin-top: 8px; }
+  .presentation .scene-event-marker small { max-width: 210px; line-height: 1.5; }
   .presentation-footnote { padding: 8px 24px; font-size: 10px; }
 }
 @media (min-width: 1700px) {

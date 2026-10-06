@@ -77,7 +77,7 @@ export const ELEMENTS: Record<
     name: "A cue for the owner",
     tag: "MONITOR · BELOW THE WINDOW",
     description:
-      "Visible to O1, the monitor first identifies the object to prepare and later displays a countdown. Screen graphics here illustrate those functions.",
+      "Visible to O1, the monitor first identifies the object to prepare and later displays a countdown. This model shows PREPARE during preparation and the spoken word during the word prime as an illustrative playback aid.",
   },
   objects: {
     name: "One shared object pool",

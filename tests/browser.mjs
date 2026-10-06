@@ -106,6 +106,64 @@ try {
   await button("Hide labels").click();
   await button("Show labels").click();
   await button("Run trial").click();
+  // Check every rendered phase for both canonical definitions, including the
+  // owner's neutral preparation cue, which must never look like a word prime.
+  for (const [condition, object] of [
+    ["Match", "Ball"],
+    ["Mismatch", "Frisbee"],
+  ]) {
+    await button(condition).click();
+    for (const n of [0, 1, 2, 3, 4, 5]) {
+      await step(n);
+      assert.deepEqual(
+        await page.locator(".relationship strong").allTextContents(),
+        n < 2 ? [] : ["Ball", n < 4 ? "Hidden" : object],
+        `${condition}, step ${n}: exact word/object disclosure`,
+      );
+      if (n < 4)
+        assert.doesNotMatch(
+          await relation(),
+          /REVEALED OBJECT|corresponds|does not correspond/,
+        );
+      if (n === 1) {
+        await page.waitForFunction(
+          (expected) =>
+            document.querySelector(".monitor-text")?.textContent === expected,
+          "PREPARE",
+        );
+      }
+      if (n < 4 && n !== 2)
+        assert.doesNotMatch(
+          (await page.locator(".monitor-text").allTextContents()).join(" "),
+          /ball|frisbee/i,
+          "The monitor shows a word only during the word prime",
+        );
+      if (n === 2) {
+        await page.waitForFunction(
+          () => document.querySelector(".monitor-text")?.textContent === "BALL",
+        );
+        assert.equal(await page.locator(".word-prime-marker").isVisible(), true);
+        assert.equal(await page.locator(".word-prime-marker strong").innerText(), "“ball”");
+        assert.match(
+          await page.locator(".prime-quote").innerText(),
+          /the ball!/,
+        );
+        assert.doesNotMatch(
+          await page.locator(".prime-quote").innerText(),
+          /frisbee/i,
+        );
+      } else {
+        assert.equal(await page.locator(".word-prime-marker").count(), 0);
+      }
+      if (n >= 4)
+        assert.match(
+          await relation(),
+          condition === "Match"
+            ? /The word corresponds/
+            : /The word does not correspond/,
+        );
+    }
+  }
   await button("Mismatch").click();
   for (const n of [0, 1]) {
     await step(n);
@@ -124,8 +182,10 @@ try {
       n === 2 ? /TRANSPARENT/ : /OPAQUE/,
     );
   }
+  await step(2);
+  assert.match(await page.locator(".prime-quote").innerText(), /the ball!/);
   await step(4);
-  assert.match(await relation(), /Frisbee/);
+  assert.match(await relation(), /Ball\s*→\s*Frisbee/);
   assert.match(await page.locator(".onset-marker").innerText(), /t = 0/);
   assert.equal(
     await page.locator(".epoch").getAttribute("data-epoch-time"),
@@ -139,6 +199,8 @@ try {
   assert.match(await relation(), /Frisbee/);
   await button("Match").click();
   assert.doesNotMatch(await relation(), /Ball|Frisbee/);
+  await step(2);
+  assert.match(await page.locator(".prime-quote").innerText(), /the ball!/);
   await step(4);
   assert.match(await relation(), /Ball\s*→\s*Ball/);
   await button("Reset trial").click();
@@ -166,6 +228,8 @@ try {
         window: document.querySelector(".window-status").textContent,
         relation: document.querySelector(".relationship").textContent,
         onset: !!document.querySelector(".onset-marker"),
+        monitor: document.querySelector(".monitor-text")?.textContent ?? null,
+        prime: document.querySelector(".word-prime-marker strong")?.textContent ?? null,
       });
     };
     record();
@@ -210,11 +274,19 @@ try {
   for (const r of delay)
     assert.ok(Math.abs(r.epoch - Math.max(-200, r.elapsed - 1000)) < 0.01);
   for (const r of trace.filter((r) => r.step === 2 || r.step === 3))
-    assert.ok(r.relation.includes("Hidden") && !r.relation.includes("Frisbee"));
+    assert.ok(
+      r.relation.includes("Ball") &&
+        r.relation.includes("Hidden") &&
+        !r.relation.includes("Frisbee"),
+    );
   assert.equal(transitions[4].epoch, 0);
+  assert.ok(trace.some((r) => r.step === 2 && r.monitor === "BALL"),
+    "The 3D monitor displays BALL during the mismatch word prime in live playback");
+  for (const r of trace)
+    assert.equal(r.prime, r.step === 2 ? "“ball”" : null);
   assert.equal(transitions[4].onset, true);
   assert.match(transitions[4].window, /TRANSPARENT/);
-  assert.match(transitions[4].relation, /Frisbee/);
+  assert.match(transitions[4].relation, /Ball\s*→\s*Frisbee/);
   assert.ok(trace.some((r) => r.step === 4 && r.epoch > 206 && r.epoch < 606));
   await step(4);
   await page.keyboard.press("p");

@@ -13,14 +13,15 @@ import { Html, Line } from "@react-three/drei";
 import { Group, MeshStandardMaterial, MathUtils } from "three";
 import { Block, Dog, Human, StimulusObject, Rod } from "./Models";
 import CameraController from "./CameraController";
-import type { CameraPreset, ElementId, Condition } from "@/lib/experimentData";
+import type { CameraPreset, ElementId } from "@/lib/experimentData";
 import { OBJECTS } from "@/lib/experimentData";
+import { getTrialContent, type TrialDefinition } from "@/lib/trialDefinition";
 import type { TrialStep } from "@/lib/trialStates";
 type Vec = [number, number, number];
 interface SceneProps {
   step: TrialStep;
   trial: boolean;
-  condition: Condition;
+  definition: TrialDefinition;
   selected: ElementId | null;
   onSelect: (id: ElementId | null) => void;
   preset: CameraPreset;
@@ -109,11 +110,11 @@ function ElectricGlass({
 }
 function HeldObject({
   step,
-  condition,
+  definition,
   reducedMotion,
 }: {
   step: TrialStep;
-  condition: Condition;
+  definition: TrialDefinition;
   reducedMotion: boolean;
 }) {
   const ref = useRef<Group>(null);
@@ -136,7 +137,7 @@ function HeldObject({
       visible={step >= 1 && step <= 4}
     >
       <StimulusObject
-        kind={condition === "match" ? "ball" : "frisbee"}
+        kind={getTrialContent(definition, step).heldObject}
         scale={1.2}
       />
     </group>
@@ -226,24 +227,25 @@ function Pick({
 }
 function MonitorReadout({
   step,
-  condition,
+  definition,
   timeRef,
 }: {
   step: TrialStep;
-  condition: Condition;
+  definition: TrialDefinition;
   timeRef: RefObject<number>;
 }) {
   const text = useRef<HTMLSpanElement>(null);
+  const primeWord = getTrialContent(definition, step).primeWord;
   useEffect(() => {
     let frame: number;
     const tick = () => {
       if (text.current)
         text.current.textContent =
           step === 1
-            ? condition === "match"
-              ? "BALL"
-              : "FRISBEE"
-            : step === 3
+            ? "PREPARE"
+            : primeWord !== null
+              ? primeWord.toUpperCase()
+              : step === 3
               ? Math.max(0, (1000 - timeRef.current) / 1000).toFixed(1)
               : step === 4
                 ? Math.max(0, (2000 - timeRef.current) / 1000).toFixed(1)
@@ -252,7 +254,7 @@ function MonitorReadout({
     };
     tick();
     return () => cancelAnimationFrame(frame);
-  }, [step, condition, timeRef]);
+  }, [step, primeWord, timeRef]);
   return <span ref={text} />;
 }
 function SceneContent(
@@ -261,7 +263,7 @@ function SceneContent(
   const {
     step,
     trial,
-    condition,
+    definition,
     selected,
     onSelect,
     preset,
@@ -426,7 +428,7 @@ function SceneContent(
       </Pick>
       <HeldObject
         step={trial ? step : 0}
-        condition={condition}
+        definition={definition}
         reducedMotion={reducedMotion}
       />
       <Pick id="monitor">
@@ -456,7 +458,7 @@ function SceneContent(
           >
             <MonitorReadout
               step={step}
-              condition={condition}
+              definition={definition}
               timeRef={props.timeRef}
             />
           </Html>

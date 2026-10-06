@@ -21,6 +21,7 @@ import {
   AUTHOR_VALIDATION_NOTE,
   PAPER_URL,
 } from "@/lib/constants";
+import { getTrialDefinition, getTrialContent } from "@/lib/trialDefinition";
 import TrialController from "./TrialController";
 import Timeline from "./Timeline";
 import InfoPanel, { ResearchNotes } from "./InfoPanel";
@@ -177,6 +178,8 @@ export default function Experiment() {
     reset();
   };
   const current = STEPS[step];
+  const definition = getTrialDefinition(condition);
+  const content = getTrialContent(definition, step);
   const clear = mode === "trial" ? step === 2 || step === 4 : inspectWindow;
   return (
     <main
@@ -245,7 +248,7 @@ export default function Experiment() {
               <ExperimentScene
                 step={step}
                 trial={mode === "trial"}
-                condition={condition}
+                definition={definition}
                 selected={selected}
                 onSelect={selectElement}
                 preset={preset}
@@ -281,8 +284,15 @@ export default function Experiment() {
               </button>
             </div>
           )}
+          {mode === "trial" && content.primeWord !== null && (
+            <div className="scene-event-marker word-prime-marker" role="status">
+              <span className="micro">WORD PRIME / OWNER’S VOICE</span>
+              <strong>“{content.primeWord}”</strong>
+              <small>Spoken-word illustration · object still hidden</small>
+            </div>
+          )}
           {mode === "trial" && step === 4 && (
-            <div className="onset-marker" role="status">
+            <div className="scene-event-marker onset-marker" role="status">
               <span className="micro">OBJECT ONSET / EEG EVENT TRIGGER</span>
               <strong>
                 t = 0 <span>ms</span>
@@ -331,43 +341,29 @@ export default function Experiment() {
               <p>{current.caption}</p>
             </div>
             <div
-              className={`relationship ${step >= 4 ? condition : "pending"}`}
+              className={`relationship ${content.revealed ? condition : "pending"}`}
               aria-live="polite"
               aria-label="Word and object information"
             >
-              {step < 2 ? (
+              {content.wordLabel === null ? (
                 <>
                   <span className="micro">BEFORE THE WORD PRIME</span>
-                  <p>
-                    {step === 0
-                      ? "Trial not yet begun."
-                      : "Owner preparing the object. The dog has not yet heard the word."}
-                  </p>
+                  <p>{content.explanation}</p>
                 </>
               ) : (
                 <>
                   <span className="micro">
                     HEARD WORD{" "}
-                    <span>{step >= 4 ? "REVEALED OBJECT" : "OBJECT"}</span>
+                    <span>
+                      {content.revealed ? "REVEALED OBJECT" : "OBJECT"}
+                    </span>
                   </span>
                   <div>
-                    <strong>Ball</strong>
+                    <strong>{content.wordLabel}</strong>
                     <span className="relation-arrow">→</span>
-                    <strong>
-                      {step < 4
-                        ? "Hidden"
-                        : condition === "match"
-                          ? "Ball"
-                          : "Frisbee"}
-                    </strong>
+                    <strong>{content.objectLabel}</strong>
                   </div>
-                  <p>
-                    {step < 4
-                      ? "The object has not yet been revealed."
-                      : condition === "match"
-                        ? "The word corresponds to the object."
-                        : "The word does not correspond to the object."}
-                  </p>
+                  <p>{content.explanation}</p>
                 </>
               )}
             </div>
@@ -377,7 +373,7 @@ export default function Experiment() {
                 <blockquote>
                   “Kun-kun, look,
                   <br />
-                  the <em>ball!</em>”
+                  the <em>{definition.spokenWord}!</em>”
                 </blockquote>
                 <span className="small-muted">
                   Sentence shown as text; no audio recording.
