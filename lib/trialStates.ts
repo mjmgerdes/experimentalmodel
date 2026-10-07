@@ -22,7 +22,7 @@ export const STEPS: StepDefinition[] = [
     id: 1,
     short: "Prepare",
     title: "An object, still hidden.",
-    caption: "1500 ms — O1 prepares the object out of the dog’s view.",
+    caption: "1500 ms — the monitor cues O1 which object to prepare, out of the dog’s view.",
     duration: 1500,
     timing: "1500 ms",
     window: "opaque",

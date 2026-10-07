@@ -36,6 +36,7 @@ export function getTrialContent(definition: TrialDefinition, step: TrialStep) {
   const corresponds = definition.spokenWord === definition.revealedObject;
   return {
     revealed,
+    preparationCue: step === 1 ? definition.preparedObject : null,
     primeWord: step === 2 ? definition.spokenWord : null,
     wordLabel: heard ? displayName(definition.spokenWord) : null,
     objectLabel: !heard

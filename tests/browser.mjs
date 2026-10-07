@@ -107,7 +107,7 @@ try {
   await button("Show labels").click();
   await button("Run trial").click();
   // Check every rendered phase for both canonical definitions, including the
-  // owner's neutral preparation cue, which must never look like a word prime.
+  // owner's object cue, distinct from the auditory word at the speakers.
   for (const [condition, object] of [
     ["Match", "Ball"],
     ["Mismatch", "Frisbee"],
@@ -129,19 +129,21 @@ try {
         await page.waitForFunction(
           (expected) =>
             document.querySelector(".monitor-text")?.textContent === expected,
-          "PREPARE",
+          object.toUpperCase(),
         );
       }
-      if (n < 4 && n !== 2)
+      if (n < 4 && n !== 1)
         assert.doesNotMatch(
           (await page.locator(".monitor-text").allTextContents()).join(" "),
           /ball|frisbee/i,
-          "The monitor shows a word only during the word prime",
+          "The monitor names the prepared object only during preparation",
         );
       if (n === 2) {
         await page.waitForFunction(
-          () => document.querySelector(".monitor-text")?.textContent === "BALL",
+          () => document.querySelector(".monitor-text")?.textContent === "READY",
         );
+        assert.equal(await page.locator(".speaker-word-cue strong").innerText(), "“ball”");
+        assert.equal(await page.locator(".speaker-word-cue").isVisible(), true);
         assert.equal(await page.locator(".word-prime-marker").isVisible(), true);
         assert.equal(await page.locator(".word-prime-marker strong").innerText(), "“ball”");
         assert.match(
@@ -154,6 +156,7 @@ try {
         );
       } else {
         assert.equal(await page.locator(".word-prime-marker").count(), 0);
+        assert.equal(await page.locator(".speaker-word-cue").count(), 0);
       }
       if (n >= 4)
         assert.match(
@@ -228,6 +231,7 @@ try {
         window: document.querySelector(".window-status").textContent,
         relation: document.querySelector(".relationship").textContent,
         onset: !!document.querySelector(".onset-marker"),
+        speaker: document.querySelector(".speaker-word-cue strong")?.textContent ?? null,
         monitor: document.querySelector(".monitor-text")?.textContent ?? null,
         prime: document.querySelector(".word-prime-marker strong")?.textContent ?? null,
       });
@@ -280,8 +284,10 @@ try {
         !r.relation.includes("Frisbee"),
     );
   assert.equal(transitions[4].epoch, 0);
-  assert.ok(trace.some((r) => r.step === 2 && r.monitor === "BALL"),
-    "The 3D monitor displays BALL during the mismatch word prime in live playback");
+  assert.ok(trace.some((r) => r.step === 1 && r.monitor === "FRISBEE"),
+    "The mismatch preparation monitor cues FRISBEE");
+  assert.ok(trace.some((r) => r.step === 2 && r.monitor === "READY" && r.speaker === "“ball”"),
+    "The speakers display ball during the mismatch word prime, separately from the monitor");
   for (const r of trace)
     assert.equal(r.prime, r.step === 2 ? "“ball”" : null);
   assert.equal(transitions[4].onset, true);

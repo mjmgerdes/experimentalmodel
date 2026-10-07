@@ -2089,3 +2089,25 @@ select option {
   .condition-switch { width: auto; justify-self: start; min-width: 160px; }
   .pool-note { padding-top: 0; }
 }
+
+/* Anchored to the loudspeaker, separate from the owner's preparation monitor. */
+.speaker-word-cue {
+  color: var(--text);
+  background: #202724ed;
+  border: 1px solid var(--cool);
+  padding: 7px 10px;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+.speaker-word-cue::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  height: 16px;
+  border-left: 1px solid var(--cool);
+}
+.speaker-word-cue span { display: block; font-size: 8px; letter-spacing: .06em; color: var(--cool); }
+.speaker-word-cue strong { display: block; font-family: var(--mono); font-size: 22px; font-weight: 400; }

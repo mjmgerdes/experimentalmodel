@@ -235,17 +235,15 @@ function MonitorReadout({
   timeRef: RefObject<number>;
 }) {
   const text = useRef<HTMLSpanElement>(null);
-  const primeWord = getTrialContent(definition, step).primeWord;
+  const preparationCue = getTrialContent(definition, step).preparationCue;
   useEffect(() => {
     let frame: number;
     const tick = () => {
       if (text.current)
         text.current.textContent =
-          step === 1
-            ? "PREPARE"
-            : primeWord !== null
-              ? primeWord.toUpperCase()
-              : step === 3
+          preparationCue !== null
+            ? preparationCue.toUpperCase()
+            : step === 3
               ? Math.max(0, (1000 - timeRef.current) / 1000).toFixed(1)
               : step === 4
                 ? Math.max(0, (2000 - timeRef.current) / 1000).toFixed(1)
@@ -254,7 +252,7 @@ function MonitorReadout({
     };
     tick();
     return () => cancelAnimationFrame(frame);
-  }, [step, primeWord, timeRef]);
+  }, [step, preparationCue, timeRef]);
   return <span ref={text} />;
 }
 function SceneContent(
@@ -271,6 +269,7 @@ function SceneContent(
     inspectWindow,
     labels,
   } = props;
+  const content = getTrialContent(definition, step);
   const clear = trial ? step === 2 || step === 4 : inspectWindow;
 
   return (
@@ -484,6 +483,14 @@ function SceneContent(
         ))}
       </Pick>
       <SoundWaves active={trial && step === 2} reducedMotion={reducedMotion} />
+      {trial && content.primeWord !== null && (
+        <Html position={[-1.15, 0.7, -0.83]} center zIndexRange={[3, 0]}>
+          <div className="speaker-word-cue" aria-label={`Speaker plays the word ${content.primeWord}`}>
+            <span>SPEAKERS · DOG HEARS</span>
+            <strong>“{content.primeWord}”</strong>
+          </div>
+        </Html>
+      )}
       <Pick id="objects" position={[-1.2, 0, -2.3]} ring={[0.46, 0.48]}>
         <Block position={[0, 0.37, 0]} size={[0.9, 0.7, 0.8]} color="#606c60" />
         <Block

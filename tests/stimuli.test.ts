@@ -34,6 +34,7 @@ for (const condition of ["match", "mismatch"] as const) {
     const expectedLabel = condition === "match" ? "Ball" : "Frisbee";
     for (const step of [0, 1, 2, 3, 4, 5] as const) {
       const content = getTrialContent(definition, step);
+      assert.equal(content.preparationCue, step === 1 ? expectedObject : null);
       assert.equal(content.primeWord, step === 2 ? "ball" : null);
       assert.equal(content.heldObject, expectedObject);
       assert.equal(content.wordLabel, step < 2 ? null : "Ball");

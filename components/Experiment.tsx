@@ -286,9 +286,9 @@ export default function Experiment() {
           )}
           {mode === "trial" && content.primeWord !== null && (
             <div className="scene-event-marker word-prime-marker" role="status">
-              <span className="micro">WORD PRIME / OWNER’S VOICE</span>
+              <span className="micro">SPEAKERS / OWNER’S RECORDED VOICE</span>
               <strong>“{content.primeWord}”</strong>
-              <small>Spoken-word illustration · object still hidden</small>
+              <small>Dog hears the word · object still hidden</small>
             </div>
           )}
           {mode === "trial" && step === 4 && (
